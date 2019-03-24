@@ -20,13 +20,22 @@
        <dependency org="prom" name="AcceptingPetriNetClassicalReductor" rev="latest" changing="true" transitive="true" />
        <dependency org="prom" name="AcceptingPetriNetMiner" rev="latest" changing="true" transitive="true" />
        <dependency org="prom" name="AcceptingPetriNetRedundantPlacesReductor" rev="latest" changing="true" transitive="true" />
+       
+
        <dependency org="prom" name="ActivityClusterArray" rev="latest" changing="true" transitive="true" />
-       <dependency org="prom" name="ActivityClusterArrayCreator" rev="latest" changing="true" transitive="true" />
+       <dependency org="prom" name="ActivityClusterArrayCreator" rev="latest" changing="true" transitive="true" />       
        <dependency org="prom" name="CausalActivityGraph" rev="latest" changing="true" transitive="true" />
-       <dependency org="prom" name="CausalActivityGraphCreator" rev="latest" changing="true" transitive="true" />
+       <dependency org="prom" name="CausalActivityGraphCreator" rev="latest" changing="true" transitive="true" /> 
        <dependency org="prom" name="CausalActivityMatrix" rev="latest" changing="true" transitive="true" />
-       <dependency org="prom" name="CausalActivityMatrixMiner" rev="latest" changing="true" transitive="true" />
+       <dependency org="prom" name="CausalActivityMatrixMiner" rev="latest" changing="true" transitive="true" /> 
+
+	   <dependency org="prom" name="PNAnalysis" rev="latest" changing="true" transitive="true" />		
+	   <dependency org="prom" name="Woflan" rev="latest" changing="true" transitive="true" />	
+       <dependency org="prom" name="DecomposedMiner" rev="latest" changing="true" transitive="true" />
+       <dependency org="prom" name="Performance" rev="latest" changing="true" transitive="true" />
        <dependency org="prom" name="LogDecomposer" rev="latest" changing="true" transitive="true" />
+       <dependency org="prom" name="BPMNConversions" rev="latest" changing="true" transitive="true" />
+       <dependency org="prom" name="InductiveMiner" rev="latest" changing="true" transitive="true" />
        <dependency conf="lib->default" org="org.apache.derby" name="derby" rev="10.13.1.1" />
        <dependency conf="lib->default" org="org.jfree" name="swtgraphics2d" rev="1.0" />
        <dependency conf="lib->default" org="jfree" name="jfreechart-swt" rev="1.0.17" transitive="false" />
