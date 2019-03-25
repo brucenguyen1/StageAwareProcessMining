@@ -171,7 +171,7 @@ public class MCAS extends DivideAndConquerMiner {
 							MinSS = 6;
 						}
 						else if (fileName.contains("BPIC15_2")) {
-							MinSS = 28;
+							MinSS = 7;
 						}
 						else if (fileName.contains("BPIC15_3")) {
 							MinSS = 6;

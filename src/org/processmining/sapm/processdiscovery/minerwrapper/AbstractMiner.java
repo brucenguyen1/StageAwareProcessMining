@@ -125,7 +125,7 @@ public class AbstractMiner implements Miner {
 		    	  Petrinet petrinet = result.getPetrinetRes().getPetrinet();
 		    	  return Evaluator.checkSoundness_Woflan(context, petrinet);
 		      }
-		    }, 200, TimeUnit.SECONDS, true);
+		    }, Evaluator.TIMEOUT, TimeUnit.SECONDS, true);
 		    soundness = isSoundModel ? 1 : 0;
 		    result.getEvaluation().setSoundCheck(soundness);
 		} catch (UncheckedTimeoutException e) {
@@ -133,7 +133,7 @@ public class AbstractMiner implements Miner {
 			soundness = -1;
 			result.getEvaluation().setSoundCheck(soundness);
 		} finally {
-			executor1.shutdown();
+			executor1.shutdownNow();
 		}		
 	}
 	
@@ -184,7 +184,7 @@ public class AbstractMiner implements Miner {
 		  			BPMNDiagram bpmn = result.getBPMN();
 		  			return Evaluator.measureComplexity(bpmn);
 		    	}
-		    }, 200, TimeUnit.SECONDS, true);
+		    }, Evaluator.TIMEOUT, TimeUnit.SECONDS, true);
 		    result.getEvaluation().setSize(complexity[0]);
 		    result.getEvaluation().setCFC(complexity[1]);
 		    result.getEvaluation().setStructuredness(complexity[2]);
@@ -195,7 +195,7 @@ public class AbstractMiner implements Miner {
 		    result.getEvaluation().setCFC(complexity[1]);
 		    result.getEvaluation().setStructuredness(complexity[2]);			
 		} finally {
-			executor2.shutdown();
+			executor2.shutdownNow();
 		}	
 	}
 	

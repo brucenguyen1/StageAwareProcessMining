@@ -41,7 +41,7 @@ public class StageMiningHighestModularity extends AbstractStageMiningAlgo {
 		try {
 			System.out.println("Import log file");
 			String fileName = "BPI13incidents_completecases.xes.gz";
-			XLog log = (XLog)logImporter.importFile(new FakePluginContext(), new File(System.getProperty("user.dir") + "\\" + "logs\\BPIC15_1_HOOFD_cleantime.xes"));
+			XLog log = (XLog)logImporter.importFile(new FakePluginContext(), new File(System.getProperty("user.dir") + "\\" + "logs\\BPIC15_2_HOOFD_fix_timestamp.xes.gz"));
 			
 			AbstractStageMiningAlgo algo = new StageMiningHighestModularity();
 			algo.setDebug(false);

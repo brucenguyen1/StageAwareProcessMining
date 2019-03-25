@@ -34,7 +34,6 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.connectionfactories.logpetrinet.EvClassLogPetrinetConnectionFactoryUI;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
-import org.processmining.plugins.petrinet.replayer.algorithms.IPNReplayParameter;
 import org.processmining.plugins.petrinet.replayer.algorithms.costbasedcomplete.CostBasedCompleteParam;
 
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
@@ -72,7 +71,7 @@ public class PNetReplayerParamSetting {
 	 * @return
 	 * @throws Exception 
 	 */
-	private static TransEvClassMapping getMap(XLog log, Petrinet net) throws Exception {
+	public static TransEvClassMapping getMap(XLog log, Petrinet net) throws Exception {
 		TransEvClassMapping map = new TransEvClassMapping(
 				XLogInfoImpl.NAME_CLASSIFIER, EvClassLogPetrinetConnectionFactoryUI.DUMMY);
 		List<Transition> listTrans = new ArrayList<Transition>(net.getTransitions());
@@ -190,6 +189,17 @@ public class PNetReplayerParamSetting {
 	}
 	
 	public static CostBasedCompleteParam constructReplayParameter(PluginContext context, XLog log, Petrinet net, 
+			TransEvClassMapping mapping, Marking initialMarking, Set<Marking> finalMarkings) {
+			CostBasedCompleteParam paramObj = new CostBasedCompleteParam(getMapEvClassToCost(log, mapping), getTransitionWeight(net));
+			paramObj.setMapSync2Cost(getSyncCost(net));
+			paramObj.setMaxNumOfStates(getMaxNumOfStates());
+			paramObj.setInitialMarking(initialMarking);
+			paramObj.setFinalMarkings(finalMarkings.toArray(new Marking[finalMarkings.size()]));
+			paramObj.setUsePartialOrderedEvents(isUsePartialOrderedEvents());
+			return paramObj;
+	}
+	
+	public static CostBasedCompleteParam constructReplayParameter_old(PluginContext context, XLog log, Petrinet net, 
 																					TransEvClassMapping mapping) {
 		CostBasedCompleteParam paramObj = new CostBasedCompleteParam(getMapEvClassToCost(log, mapping), 
 																		getTransitionWeight(net));

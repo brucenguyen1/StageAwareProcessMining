@@ -1,7 +1,6 @@
 package org.processmining.sapm.processdiscovery.evaluation;
 
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -11,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.framework.connections.ConnectionCannotBeObtained;
-import org.processmining.models.connections.petrinets.EvClassLogPetrinetConnection;
 import org.processmining.models.connections.petrinets.behavioral.FinalMarkingConnection;
 import org.processmining.models.connections.petrinets.behavioral.InitialMarkingConnection;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
@@ -36,26 +34,41 @@ import org.processmining.sapm.processdiscovery.bpmn.metrics.ComplexityCalculator
 import com.google.common.util.concurrent.SimpleTimeLimiter;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
 
+import nl.tue.astar.AStarThread;
+
 public class Evaluator {
+	public static int TIMEOUT = 200;
+	
+	private static class ReplayCanceller implements AStarThread.Canceller {
+		private volatile boolean cancelled = false;
+		@Override 
+		public boolean isCancelled() {
+			return cancelled;
+		}
+		
+		public void setCancelled(boolean cancelled) {
+			this.cancelled = cancelled;
+		}
+	}
+
 	public static Object[] measureFitnessPrecision(UIPluginContext context, XLog log, Petrinet net, 
 						Marking initialMarking, Set<Marking> finalMarkings) throws Exception {
 		Object[] result = new Object[5];
-
-		context.clear();
+		
+		// Set up connections that could be required inside the other plugins 
 		context.addConnection(new InitialMarkingConnection(net, initialMarking));
 		for (Marking m : finalMarkings) {
 			context.addConnection(new FinalMarkingConnection(net, m));
 		}
-		EvClassLogPetrinetConnection con = PNetReplayerParamSetting.createConnection(log, net);
-		context.addConnection(con);
 		
 		// Align Petrinet with the log
 		PetrinetReplayerWithILP algo = new PetrinetReplayerWithILP();
-		TransEvClassMapping mapping = (TransEvClassMapping)con.getObjectWithRole(EvClassLogPetrinetConnection.TRANS2EVCLASSMAPPING);
+		TransEvClassMapping mapping = PNetReplayerParamSetting.getMap(log, net);
 		PNLogReplayer replayer = new PNLogReplayer();
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		PNRepResult replayResult=null;
-		CostBasedCompleteParam alignParams = PNetReplayerParamSetting.constructReplayParameter(context, log, net, mapping);
+		CostBasedCompleteParam alignParams = PNetReplayerParamSetting.constructReplayParameter(context, log, net, mapping, initialMarking, finalMarkings);
+		alignParams.setCanceller(new ReplayCanceller());
 		try {
 		    SimpleTimeLimiter timeout = new SimpleTimeLimiter(executor);
 		    replayResult = timeout.callWithTimeout(new Callable<PNRepResult>() {
@@ -63,13 +76,14 @@ public class Evaluator {
 		      public PNRepResult call() throws Exception {
 		    	  return replayer.replayLog(context, net, log, mapping, algo, alignParams);
 		      }
-		    }, 200, TimeUnit.SECONDS, true);
+		    }, Evaluator.TIMEOUT, TimeUnit.SECONDS, true);
 		} catch (UncheckedTimeoutException e) {
-			  System.err.println("Aligning log and model has been timed out!");
-			  executor.shutdown();
-			  return null;
+			((ReplayCanceller)alignParams.getCanceller()).setCancelled(true);
+			System.err.println("Aligning log and model has been timed out!");
+			executor.shutdownNow();
+			return null;
 		} finally {
-			  executor.shutdown();
+			executor.shutdownNow();
 		}	
 		
 		// Extract fitness measure
@@ -100,75 +114,7 @@ public class Evaluator {
 		return result;
 	}
 
-	public static PNRepResult align(UIPluginContext context, XLog log, Petrinet net, 
-			Marking initialMarking, Set<Marking> finalMarkings) throws Exception {
-//		try {
-//			context.getConnectionManager().getFirstConnection(InitialMarkingConnection.class, context, net);
-//		} catch (ConnectionCannotBeObtained e) {
-//			context.addConnection(new InitialMarkingConnection(net, initialMarking));
-//		}
-//		try {
-//			context.getConnectionManager().getConnections(FinalMarkingConnection.class, context, net);
-//		} catch (ConnectionCannotBeObtained e) {
-//			for (Marking m : finalMarkings) {
-//				context.addConnection(new FinalMarkingConnection(net, m));
-//			}
-//		}
 
-		context.clear();
-		context.addConnection(new InitialMarkingConnection(net, initialMarking));
-		for (Marking m : finalMarkings) {
-			context.addConnection(new FinalMarkingConnection(net, m));
-		}
-		EvClassLogPetrinetConnection con = PNetReplayerParamSetting.createConnection(log, net);
-		context.addConnection(con);
-
-		// Align Petrinet with the log
-		PetrinetReplayerWithILP algo = new PetrinetReplayerWithILP();
-		TransEvClassMapping mapping = (TransEvClassMapping)con.getObjectWithRole(EvClassLogPetrinetConnection.TRANS2EVCLASSMAPPING);
-		PNLogReplayer replayer = new PNLogReplayer();
-		//System.out.println("Start replaying log and model using alignment");
-		PNRepResult replayResult = replayer.replayLog(context, net, log, mapping, algo, 
-											PNetReplayerParamSetting.constructReplayParameter(context, log, net, mapping));
-		return replayResult;
-	}
-	
-	public static double measureFitness(PNRepResult replayResult) {
-		// Extract fitness measure
-		double fitness = -1;
-		if (replayResult != null) {
-			Map<String, Object> allInfo = replayResult.getInfo();
-			if ((allInfo != null) && (allInfo.size() > 0)) {
-				Set<Entry<String, Object>> entrySet = replayResult.getInfo().entrySet();
-				for (Entry<String, Object> entry : entrySet) {
-					if (entry.getKey().equals(PNRepResult.TRACEFITNESS)) {
-						fitness = (Double) entry.getValue();
-						break;
-					}
-				}
-			}
-		}
-		return fitness;
-	}
-	
-	public static double measurePrecision(UIPluginContext context, XLog log, Petrinet net, PNRepResult replayResult) 
-							throws ConnectionCannotBeObtained {
-		double precision = -1;
-		MultiETCSettings etcsetting = new MultiETCSettings();
-		etcsetting.put(MultiETCSettings.REPRESENTATION, MultiETCSettings.Representation.ORDERED);
-		etcsetting.put(MultiETCSettings.ALGORITHM, MultiETCSettings.Algorithm.ALIGN_1);
-		
-		MultiETCPlugin etcplugin = new MultiETCPlugin();
-		Object[] preResult = etcplugin.checkMultiETCAlign1(context, log, net, etcsetting, replayResult);
-		if (preResult != null) {
-			MultiETCResult etcRes = (MultiETCResult)preResult[0];
-			precision = (Double)etcRes.getAttribute(MultiETCResult.PRECISION);
-		}		
-		return precision;
-	}
-
-
-	
 	/**
 	 * 
 	 * @param context
