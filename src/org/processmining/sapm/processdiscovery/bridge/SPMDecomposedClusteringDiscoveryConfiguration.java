@@ -38,6 +38,7 @@ public class SPMDecomposedClusteringDiscoveryConfiguration extends DecomposedClu
 		nets.init();
 		try {
 			for (int i=0;i<logs.getSize();i++) {
+				System.out.println("+++++++++++++++  Mine Best SubModel for Cluster #" + (i+1) + "    +++++++++++++");
 				MiningResult result = parameters2.getMinerWrapper().mineBestModel(logs.getLog(i), ModelMetrics.FSCORE);
 				
 				//Convert from Petrinet to AcceptingPetrinet

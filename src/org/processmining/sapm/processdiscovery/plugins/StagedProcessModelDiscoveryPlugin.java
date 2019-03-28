@@ -128,10 +128,10 @@ public class StagedProcessModelDiscoveryPlugin {
 		
 		Miner baseMiner = null;
 		if (cboBaseMiner.getSelectedIndex()==0) {
-			baseMiner = new InductiveMinerWrapper(false, false, false, true);
+			baseMiner = new InductiveMinerWrapper(false, false, chkSoundness.isSelected(), true);
 		}
 		else {
-			baseMiner = new FodinaWrapper(false, false, false, true);
+			baseMiner = new FodinaWrapper(false, false, chkSoundness.isSelected(), true);
 		}
 		MCAS miner = new MCAS(	1.0*imprecisionSlider.getValue()/100, 
 								1.0*availSlider.getValue()/100, 

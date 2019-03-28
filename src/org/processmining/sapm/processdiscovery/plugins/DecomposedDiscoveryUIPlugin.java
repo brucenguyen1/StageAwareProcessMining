@@ -75,10 +75,10 @@ public class DecomposedDiscoveryUIPlugin {
 		
 		Miner baseMiner = null;
 		if (cboBaseMiner.getSelectedIndex()==0) {
-			baseMiner = new InductiveMinerWrapper(false, false, false, true);
+			baseMiner = new InductiveMinerWrapper(false, false, chkSoundness.isSelected(), true);
 		}
 		else {
-			baseMiner = new FodinaWrapper(false, false, false, true);
+			baseMiner = new FodinaWrapper(false, false, chkSoundness.isSelected(), true);
 		}
 		DecomposedMinerWrapper miner = new DecomposedMinerWrapper(true, true, chkSoundness.isSelected(), baseMiner);
 		

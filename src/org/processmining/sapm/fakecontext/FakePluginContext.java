@@ -14,8 +14,6 @@ import org.processmining.framework.plugin.impl.PluginManagerImpl;
 
 public class FakePluginContext extends UIPluginContext {
 	
-	//private final ConnectionManager connectionManager = new ConnectionManagerImpl(PluginManagerImpl.getInstance());;
-
     public FakePluginContext() {
         this(MAIN_PLUGINCONTEXT, "Fake Plugin Context");
     }
@@ -53,12 +51,6 @@ public class FakePluginContext extends UIPluginContext {
 
     public void setFuture(PluginExecutionResult pluginexecutionresult) {
     }
-    
-    //Should not use a separate connection manager because there's one in the UIContext
-//    @Override
-//	public ConnectionManager getConnectionManager() {
-//		return connectionManager;
-//	}
     
     //-----------------------------------------------------
     // Initialize the singleton UIContext

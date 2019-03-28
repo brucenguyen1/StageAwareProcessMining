@@ -51,10 +51,10 @@ public class DecomposedMinerWrapper extends DivideAndConquerMiner {
 	public static void main(String[] args) {
 		Miner baseMiner = null;
 		if (args[3].equals("0")) {
-			baseMiner = new InductiveMinerWrapper(false, false, false, true);
+			baseMiner = new InductiveMinerWrapper(false, false, Boolean.valueOf(args[2]), true);
 		}
 		else if (args[3].equals("1")) {
-			baseMiner = new FodinaWrapper(false, false, false, true);
+			baseMiner = new FodinaWrapper(false, false, Boolean.valueOf(args[2]), true);
 		}
 		else {
 			System.out.println("Unknown base miner option: " + args[3]);
@@ -118,6 +118,13 @@ public class DecomposedMinerWrapper extends DivideAndConquerMiner {
 		
 		AcceptingPetriNet net = minerPlugin.run(context, copyLog, params);
 		//PetriNetUtils.invisibleStartEndActivities(net.getNet());
+		
+		
+		// for debug only
+//		PetrinetResult petrinetRes1 = new PetrinetResult(net.getNet(), net.getInitialMarking(),net.getFinalMarkings());
+//		BPMNDiagram bpmn1 = BPMNUtils.PetriNetToBPMN_Dirk(context, petrinetRes1.getPetrinet(), petrinetRes1.getInitialMarking(), petrinetRes1.getFinalMarkings().iterator().next());	
+//		MiningResult result1 = new MiningResult(log, argMap, bpmn1, petrinetRes1, 0);
+//		if (this.writeModelFiles) this.writeModelToFile(context, result1, logName, this.getCodeName(), "beforeToWFNet");
 		
 		System.out.println("Convert merged Petri Net to Workflow Net");
 		List<Marking> newMarkings = PetriNetUtils.convertToWorkflowNet(net.getNet(), net.getInitialMarking(), net.getFinalMarkings());

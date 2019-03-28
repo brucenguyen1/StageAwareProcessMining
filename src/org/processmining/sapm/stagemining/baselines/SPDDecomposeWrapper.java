@@ -18,11 +18,11 @@ public class SPDDecomposeWrapper {
 		try {
 			OpenLogFilePlugin logImporter = new OpenLogFilePlugin();
 			System.out.println("Import log file");
-			String filename = "BPIC12_complete_events_only.xes.gz";
+			String filename = "BPIC15_5_HOOFD_fix_timestamp.xes.gz";
 			XLog log = (XLog)logImporter.importFile(new FakePluginContext(), new File(System.getProperty("user.dir") + "\\logs\\" + filename));
 			SPDMiner2 spd = new SPDMiner2();
 			SPDDecomposeWrapper spdWrapper = new SPDDecomposeWrapper();
-			for (int numClusters=2;numClusters < 10;numClusters++) {
+			for (int numClusters=2;numClusters < 15;numClusters++) {
 				SPD clusters = spd.computeClusters(new FakePluginContext(), log, numClusters);
 				double gtIndex = LogUtils.compareWithLogGroundTruth(spdWrapper.getActivityLabelSets(clusters), log);
 				System.out.println("Number of clusters: " + numClusters + ". Best ground-truth index: " + gtIndex);

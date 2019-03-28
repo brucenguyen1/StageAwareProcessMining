@@ -124,10 +124,10 @@ public class MCAS extends DivideAndConquerMiner {
 		//MCAS miner = new MCAS(0.06,0.8,true,true, true, true, true);
 		Miner baseMiner = null;
 		if (args[7].equals("0")) {
-			baseMiner = new InductiveMinerWrapper(false, false, false, true);
+			baseMiner = new InductiveMinerWrapper(false, false, Boolean.valueOf(args[6]), true);
 		}
 		else if (args[7].equals("1")) {
-			baseMiner = new FodinaWrapper(false, false, false, true);
+			baseMiner = new FodinaWrapper(false, false, Boolean.valueOf(args[6]), true);
 		}
 		else {
 			System.out.println("Unknown base miner option: " + args[7]);
@@ -143,7 +143,6 @@ public class MCAS extends DivideAndConquerMiner {
 				  Boolean.valueOf(args[6]),
 				  baseMiner);
 		
-		//miner.findBestModel("BPI2015_Municipality4_NoiseFiltered_removeSTART_END.xes");
 		try(Stream<Path> paths = Files.walk(Paths.get(System.getProperty("user.dir") + File.separator + "logs"))) {
 		    paths.forEach(filePath -> {
 		        if (Files.isRegularFile(filePath)) {
@@ -218,11 +217,6 @@ public class MCAS extends DivideAndConquerMiner {
 		this.subMiners.clear();
 		this.miningResult = null;
 	}
-	
-//	@Override
-//	public MiningResult mineBestModel(XLog log, Miner baseMiner, ModelMetrics metric) throws Exception {
-//		return null;
-//	}
 		
 	@Override
 	public MiningResult mineBestModel(XLog originalLog, ModelMetrics metric, StageDecomposition stageModel) throws Exception {

@@ -5,17 +5,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteWatchdog;
-import org.processmining.framework.boot.Boot;
-import org.processmining.framework.plugin.events.Logger.MessageLevel;
-import org.processmining.plugins.petrify.PetrifyDotG;
+import org.processmining.sapm.processdiscovery.evaluation.Evaluator;
 
 import com.google.common.util.concurrent.UncheckedTimeoutException;
 
@@ -43,10 +35,10 @@ public class GenetUtils {
 		    ProcessBuilder builder = new ProcessBuilder(GENETDIR + File.separator + "genet.exe", "-pm","-rec",sgFile);
 		    builder.directory(new File(GENETDIR));
 		    final Process process = builder.start();
-		    process.waitFor(300, TimeUnit.SECONDS);
+		    process.waitFor(Evaluator.TIMEOUT, TimeUnit.SECONDS);
 		    if (process.isAlive()) {
 		    	process.destroyForcibly();
-		    	throw new UncheckedTimeoutException("Program not terminated! Time-out after 5 minutes!");
+		    	throw new UncheckedTimeoutException("Program not terminated! Time-out after " + Evaluator.TIMEOUT + " seconds!");
 		    }
 		    else {
 			    //Write output stream to file

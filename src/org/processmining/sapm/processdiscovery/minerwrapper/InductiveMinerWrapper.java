@@ -21,7 +21,6 @@ import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.InductiveMiner.mining.MiningParameters;
 import org.processmining.plugins.InductiveMiner.plugins.IM;
 import org.processmining.sapm.fakecontext.FakePluginContext;
-import org.processmining.sapm.filter.FilterParams;
 import org.processmining.sapm.processdiscovery.ModelMetrics;
 import org.processmining.sapm.processdiscovery.result.MiningResult;
 import org.processmining.sapm.processdiscovery.result.PetrinetResult;
@@ -30,13 +29,16 @@ import org.processmining.sapm.utils.LogUtils;
 import org.processmining.sapm.utils.OpenLogFilePlugin;
 
 public class InductiveMinerWrapper extends AbstractMiner {
+	private boolean repeated = false;
+	
+	public InductiveMinerWrapper(boolean writeModelFiles, boolean writeResultFiles, boolean soundModel, boolean repeated, boolean isSubMiner) {
+		super(writeModelFiles, writeResultFiles,soundModel,isSubMiner);
+		this.repeated = repeated;
+	}
 	
 	public InductiveMinerWrapper(boolean writeModelFiles, boolean writeResultFiles, boolean soundModel, boolean isSubMiner) {
 		super(writeModelFiles, writeResultFiles,soundModel,isSubMiner);
-	}
-	
-	public InductiveMinerWrapper(boolean writeModelFiles, boolean writeResultFiles, FilterParams filterParams) {
-		super(writeModelFiles, writeResultFiles, filterParams);
+		this.repeated = false;
 	}
 	
 	/**
@@ -59,7 +61,8 @@ public class InductiveMinerWrapper extends AbstractMiner {
 		    												Boolean.valueOf(args[0]), 
 		    												Boolean.valueOf(args[1]), 
 		    												Boolean.valueOf(args[2]),
-		    												Boolean.valueOf(args[3]));
+		    												Boolean.valueOf(args[3]),
+		    												Boolean.valueOf(args[4]));
 		    		System.out.println("========================================");
 		    		System.out.println(fileName);
 		    		
@@ -69,8 +72,12 @@ public class InductiveMinerWrapper extends AbstractMiner {
 						XLog log = null;
 						log = (XLog)logImporter.importFile(new FakePluginContext(), new File(System.getProperty("user.dir") + File.separator + "logs" + 
 																File.separator + fileName));
-						//miner.mineBestModel(log, ModelMetrics.FSCORE);
-						miner.mineBestModelRepeated(log, ModelMetrics.FSCORE, 5);
+						if (miner.getRepeated()) {
+							miner.mineBestModelRepeated(log, ModelMetrics.FSCORE, 5);
+						}
+						else {
+							miner.mineBestModel(log, ModelMetrics.FSCORE);
+						}
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -132,7 +139,7 @@ public class InductiveMinerWrapper extends AbstractMiner {
 		
 		// Turn off trace files settings in the loop 
 		this.writeModelFiles = false;
-		this.writeResultFiles = false;
+		//this.writeResultFiles = false;
 
 		MiningResult bestMiningResult = null;		
 		for (int i=1; i<=times; i++) {
@@ -156,6 +163,10 @@ public class InductiveMinerWrapper extends AbstractMiner {
 	
 	public String getCodeName() {
 		return "IDM";
+	}
+	
+	public boolean getRepeated() {
+		return this.repeated;
 	}
 	
 	/**
